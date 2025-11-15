@@ -1,79 +1,102 @@
-import React from 'react';
-import Card from '../components/common/Card';
-import Button from '../components/common/Button';
-import { APP_CONFIG } from '../constants';
+import { useState } from 'react';
+import { PROPERTYLISTINGSAMPLE, FILTER_OPTIONS } from '@/constants';
+import { PropertyProps } from '@/interfaces';
+import Pill from '@/components/Pill';
+import PropertyCard from '@/components/PropertyCard';
 
-const Home: React.FC = () => {
-  const handleBookNow = (title: string) => {
-    alert(`Booking ${title}`);
+export default function Home() {
+  const [activeFilters, setActiveFilters] = useState<string[]>([]);
+  const [properties] = useState<PropertyProps[]>(PROPERTYLISTINGSAMPLE);
+
+  const toggleFilter = (filter: string) => {
+    setActiveFilters(prev =>
+      prev.includes(filter)
+        ? prev.filter(f => f !== filter)
+        : [...prev, filter]
+    );
   };
 
-  const sampleListings = [
-    {
-      id: '1',
-      title: 'Modern Apartment in Downtown',
-      description: 'Beautiful modern apartment with great city views',
-      image: 'https://picsum.photos/400/300?random=1',
-      price: 120,
-      location: 'New York, NY'
-    },
-    {
-      id: '2',
-      title: 'Cozy Beach House',
-      description: 'Relaxing beach house with ocean access',
-      image: 'https://picsum.photos/400/300?random=2',
-      price: 200,
-      location: 'Miami, FL'
-    },
-    {
-      id: '3',
-      title: 'Mountain Cabin Retreat',
-      description: 'Peaceful cabin in the mountains with hiking trails',
-      image: 'https://picsum.photos/400/300?random=3',
-      price: 150,
-      location: 'Denver, CO'
-    }
-  ];
+  const filteredProperties = properties.filter(property =>
+    activeFilters.length === 0 ||
+    property.category.some(cat => activeFilters.includes(cat)) ||
+    activeFilters.some(filter => 
+      property.name.toLowerCase().includes(filter.toLowerCase())
+    )
+  );
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white shadow-sm">
-        <div className="container mx-auto px-4 py-6">
-          <h1 className="text-3xl font-bold text-gray-800">{APP_CONFIG.name}</h1>
-          <p className="text-gray-600">{APP_CONFIG.description}</p>
+    <div className="min-h-screen">
+      {/* Hero Section */}
+      <section 
+        className="relative h-96 bg-cover bg-center bg-no-repeat"
+        style={{
+          backgroundImage: 'url("https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1200")',
+        }}
+      >
+        <div className="absolute inset-0 bg-black bg-opacity-40"></div>
+        <div className="relative container mx-auto px-4 h-full flex items-center">
+          <div className="text-white max-w-2xl">
+            <h1 className="text-5xl md:text-6xl font-bold mb-4">
+              Find your favorite place here!
+            </h1>
+            <p className="text-xl md:text-2xl mb-8">
+              The best prices for over 2 million properties worldwide.
+            </p>
+            <button className="bg-blue-600 text-white px-8 py-4 rounded-lg text-lg font-semibold hover:bg-blue-700 transition-colors">
+              Explore Properties
+            </button>
+          </div>
         </div>
-      </header>
+      </section>
 
-      <main className="container mx-auto px-4 py-8">
-        <div className="flex justify-between items-center mb-8">
-          <h2 className="text-2xl font-semibold text-gray-800">Featured Listings</h2>
-          <Button variant="primary" size="large">
-            View All Listings
-          </Button>
-        </div>
+      {/* Filter Section */}
+      <section className="py-8 bg-white border-b">
+        <div className="container mx-auto px-4">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
+            <h2 className="text-2xl font-bold text-gray-800 mb-4 md:mb-0">
+              Featured Properties
+            </h2>
+            <div className="text-gray-600">
+              Showing {filteredProperties.length} of {properties.length} properties
+            </div>
+          </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {sampleListings.map((listing) => (
-            <Card
-              key={listing.id}
-              title={listing.title}
-              description={listing.description}
-              image={listing.image}
-              price={listing.price}
-              location={listing.location}
-              onBookNow={() => handleBookNow(listing.title)}
-            />
-          ))}
+          {/* Filter Pills */}
+          <div className="flex flex-wrap gap-3 overflow-x-auto py-2">
+            {FILTER_OPTIONS.map((filter) => (
+              <Pill
+                key={filter}
+                label={filter}
+                isActive={activeFilters.includes(filter)}
+                onClick={() => toggleFilter(filter)}
+              />
+            ))}
+          </div>
         </div>
-      </main>
+      </section>
 
-      <footer className="bg-gray-800 text-white py-8 mt-12">
-        <div className="container mx-auto px-4 text-center">
-          <p>&copy; 2024 {APP_CONFIG.name}. All rights reserved.</p>
+      {/* Properties Listing Section */}
+      <section className="py-12">
+        <div className="container mx-auto px-4">
+          {filteredProperties.length === 0 ? (
+            <div className="text-center py-12">
+              <div className="text-gray-400 text-6xl mb-4">🏠</div>
+              <h3 className="text-xl font-semibold text-gray-600 mb-2">
+                No properties found
+              </h3>
+              <p className="text-gray-500">
+                Try adjusting your filters to see more results.
+              </p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {filteredProperties.map((property, index) => (
+                <PropertyCard key={index} property={property} />
+              ))}
+            </div>
+          )}
         </div>
-      </footer>
+      </section>
     </div>
   );
-};
-
-export default Home;
+}

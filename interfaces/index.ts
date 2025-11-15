@@ -1,27 +1,28 @@
-export interface CardProps {
-  title: string;
-  description: string;
-  image: string;
-  price: number;
-  location: string;
-  onBookNow: () => void;
+export interface Address {
+  state: string;
+  city: string;
+  country: string;
 }
 
-export interface ButtonProps {
-  children: React.ReactNode;
-  variant?: 'primary' | 'secondary' | 'outline';
-  size?: 'small' | 'medium' | 'large';
-  onClick?: () => void;
-  disabled?: boolean;
-  type?: 'button' | 'submit' | 'reset';
+export interface Offers {
+  bed: string;
+  shower: string;
+  occupants: string;
 }
 
-export interface Listing {
-  id: string;
-  title: string;
-  description: string;
-  image: string;
-  price: number;
-  location: string;
+export interface PropertyProps {
+  name: string;
+  address: Address;
   rating: number;
+  category: string[];
+  price: number;
+  offers: Offers;
+  image: string;
+  discount: string;
+}
+
+export interface FilterProps {
+  label: string;
+  isActive?: boolean;
+  onClick?: () => void;
 }
